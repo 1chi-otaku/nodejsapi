@@ -59,20 +59,41 @@ export class AdService {
   }
 
   async deleteAdById(adId: number, userId: number) {
+  
     const ad = await this.prisma.ad.findUnique({
-      where: {
-        id: adId,
-      },
+      where: { id: adId },
     });
-
-    if (!ad || ad.userId !== userId) {
-      throw new ForbiddenException('You do not have permission to delete this ad');
+  
+  
+    if (ad.userId !== userId) {
+      throw new Error('You are not allowed to delete this.');
     }
-
+  
     await this.prisma.ad.delete({
-      where: {
-        id: adId,
+      where: { id: adId },
+    });
+  
+    return { message: 'Success' };
+  }
+
+  async getAdsByCategoryId(categoryId: number) {
+    return this.prisma.ad.findMany({
+      where: { categoryId },
+      include: {
+        category: true,
+        user: true,
       },
     });
   }
+  
+  async getAdsByUserId(userId: number) {
+    return this.prisma.ad.findMany({
+      where: { userId },
+      include: {
+        category: true,
+        user: true,
+      },
+    });
+  }
+  
 }

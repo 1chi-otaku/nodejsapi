@@ -40,4 +40,14 @@ export class AdController {
   deleteAdById(@Param('id', ParseIntPipe) adId: number, @GetUser('id') userId: number) {
     return this.adService.deleteAdById(adId, userId);
   }
+
+  @Get('category/:categoryId')
+  getAdsByCategoryId(@Param('categoryId', ParseIntPipe) categoryId: number) {
+    return this.adService.getAdsByCategoryId(categoryId);
+  }
+
+  @Get('user/:userId')
+  getAdsByUserId(@Param('userId', ParseIntPipe) userId: number) {
+    return this.adService.getAdsByUserId(userId);
+  }
 }
