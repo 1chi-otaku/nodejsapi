@@ -3,6 +3,7 @@ import { PrismaService } from '../prisma/prisma.service';
 import { ChangePasswordDto, EditUserDto } from './dto';
 import * as argon from 'argon2';
 import { ForbiddenException } from '@nestjs/common';
+import { Role } from '@prisma/client';
 
 @Injectable()
 export class UserService {
@@ -21,6 +22,31 @@ export class UserService {
     delete user.hash;
 
     return user;
+  }
+
+  async getUserRole(userId: number) {
+    const user = await this.prisma.user.findUnique({
+      where: { id: userId },
+    });
+
+    return user?.role ?? 'USER'; 
+  }
+
+  async changeRole(adminUserId: number, targetUserId: number, newRole: Role) {
+    const adminUser = await this.prisma.user.findUnique({
+      where: { id: adminUserId },
+    });
+
+    if (adminUser?.role !== 'ADMIN') {
+      throw new ForbiddenException('Only admins can change roles');
+    }
+
+    const updatedUser = await this.prisma.user.update({
+      where: { id: targetUserId },
+      data: { role: newRole },
+    });
+
+    return updatedUser;
   }
 
   async changePassword(
