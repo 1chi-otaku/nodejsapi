@@ -27,8 +27,6 @@ export class UserService {
     userId: number,
     dto: ChangePasswordDto,
   ) {
-    // Логируем входные данные
-    console.log('Incoming DTO:', dto);
     
     const user = await this.prisma.user.findUnique({
       where: { id: userId },
@@ -39,10 +37,8 @@ export class UserService {
       throw new ForbiddenException('User not found or no password set');
     }
   
-    // Логируем хэш пользователя
-    console.log('User hash:', user.hash);
-  
-    // Проверить старый пароль
+
+
     const isOldPasswordValid = await argon.verify(
       user.hash,
       dto.oldPassword,
@@ -52,11 +48,8 @@ export class UserService {
       throw new ForbiddenException('Old password is incorrect');
     }
   
-    // Хэшировать новый пароль
     const newHash = await argon.hash(dto.newPassword);
   
-    // Логируем обновление пароля
-    console.log('New hash:', newHash);
   
     await this.prisma.user.update({
       where: { id: userId },
